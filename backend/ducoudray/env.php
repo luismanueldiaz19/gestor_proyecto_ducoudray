@@ -1,0 +1,9 @@
+<?php
+
+$ENV = [
+    'DB_HOST' => 'localhost',
+    'DB_PORT' => '5432',
+    'DB_NAME' => 'ducoudray',
+    'DB_USER' => 'postgres',
+    'DB_PASS' => '123456'
+];
