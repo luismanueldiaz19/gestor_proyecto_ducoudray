@@ -188,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   child: Text(
                                     'click Aqui!',
                                     style: style.bodySmall!.copyWith(
-                                      color: AppColors.primary,
+                                      color: AppColors.tealGreen,
                                     ),
                                   ),
                                 ),
@@ -199,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               curve: curve,
                               child: CustomLoginButton(
                                 onPressed: () => signup(context),
-                                colorButton: AppColors.primary,
+                                colorButton: AppColors.tealGreen,
                               ),
                             ),
                             const SizedBox(height: 5),
@@ -209,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 'assets/bottom_logo.png',
                                 height: 60,
                                 width: 150,
-                                color: AppColors.primary,
+                                color: AppColors.corporateBrown,
                               ),
                             ),
                             // const SizedBox(height: 15),

@@ -26,7 +26,7 @@ class _ScreenPermissionState extends State<ScreenPermission> {
         isLoading = false;
       });
     } catch (e) {
-      throw Exception("Error al cargar roles");
+      // throw Exception("Error al cargar roles");
     }
   }
 

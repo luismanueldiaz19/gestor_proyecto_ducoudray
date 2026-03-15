@@ -45,9 +45,11 @@ class ClienteProvider extends ChangeNotifier {
       _clientesFiltrados = [];
     } else {
       _clientesFiltrados = _clientes
-          .where((c) =>
-              c.nombre != null &&
-              c.nombre!.toLowerCase().contains(texto.toLowerCase()))
+          .where(
+            (c) =>
+                c.nombre != null &&
+                c.nombre!.toLowerCase().contains(texto.toLowerCase()),
+          )
           .toList();
     }
     notifyListeners();
@@ -75,7 +77,8 @@ class ClienteProvider extends ChangeNotifier {
     _clientesFiltrados = _clientes.where((pedido) {
       bool matches = true;
       if (nombreClient != null && nombreClient!.isNotEmpty) {
-        matches = matches &&
+        matches =
+            matches &&
             (pedido.nombre?.toLowerCase() == nombreClient!.toLowerCase());
       }
       return matches;

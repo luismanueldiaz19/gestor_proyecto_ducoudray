@@ -1167,7 +1167,7 @@ Widget buildEstadoBadge(String estado) {
       bgColor = Colors.orange;
       icon = const Icon(Icons.hourglass_empty, size: 14, color: Colors.white);
       break;
-    case 'aprobada' || 'aprobado' || 'entregado' || 'completado':
+    case 'aprobada' || 'aprobado' || 'entregado' || 'completado' || 'activo':
       bgColor = Colors.green;
       icon = const Icon(Icons.check_circle, size: 14, color: Colors.white);
       break;
@@ -1221,7 +1221,6 @@ Widget buildEstadoBadge(String estado) {
   }
 
   return Container(
-    width: 150,
     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
     decoration: BoxDecoration(
       color: bgColor,

@@ -1,12 +1,10 @@
 import 'package:ducoudray/model/usuario.dart';
 import 'package:ducoudray/utils/helpers.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import '../../model/roles.dart';
 import '../../repositories/usuarios_services.dart';
 import '../../widgets/buscador_dialog.dart';
-import '../../widgets/custom_loading.dart';
 import '../../widgets/validar_screen_available.dart';
 import 'get_dialog_roles.dart';
 
@@ -202,15 +200,15 @@ class _ScreenUsuariosState extends State<ScreenUsuarios> {
 
                                       if (selectedRoles != null &&
                                           selectedRoles.isNotEmpty) {
-                                        final List<int> roleIds = selectedRoles
-                                            .map((r) => r.rolId)
-                                            .toList();
+                                        // final List<int> roleIds = selectedRoles
+                                        //     .map((r) => r.rolId)
+                                        //     .toList();
 
                                         if (updateRol != null) {
-                                          updateRol!(
-                                            int.parse(items.usuarioId ?? ''),
-                                            roleIds,
-                                          );
+                                          // updateRol!(
+                                          //   int.parse(items.usuarioId ?? ''),
+                                          //   roleIds,
+                                          // );
                                         }
                                       }
                                     },
@@ -388,12 +386,12 @@ class UsuarioCard extends StatelessWidget {
                     );
 
                     if (selectedRoles != null && selectedRoles.isNotEmpty) {
-                      final List<int> roleIds = selectedRoles
-                          .map((r) => r.rolId)
-                          .toList();
+                      // final List<int> roleIds = selectedRoles
+                      //     .map((r) => r.rolId)
+                      //     .toList();
 
                       if (updateRol != null) {
-                        updateRol!(int.parse(usuario.usuarioId ?? ''), roleIds);
+                        // updateRol!(int.parse(usuario.usuarioId ?? ''), roleIds);
                       }
                     }
                   },

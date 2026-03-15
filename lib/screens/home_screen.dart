@@ -1,10 +1,13 @@
 import 'package:animate_do/animate_do.dart';
+import 'package:ducoudray/palletes/app_colors.dart';
 import 'package:flutter/material.dart';
 
 import '../../utils/constants.dart';
 import '../../widgets/menu_drop.dart';
 import '../../widgets/validar_screen_available.dart';
+import '../proyectos/screens/screen_proyecto.dart';
 import '../tareas/screen/screen_page_tarea.dart';
+import '../tareas/screen/screen_page_tarea_erp.dart';
 import '../utils/helpers.dart';
 import 'home/screen_home_buttons.dart';
 
@@ -87,38 +90,34 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Column(
                 children: [
-                  Expanded(
-                    flex: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: GridView.builder(
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: homeButtons.length,
-                        shrinkWrap: true,
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 225,
-                          childAspectRatio: size.width <= 600.0 ? 0.9 : 1.1,
-                          crossAxisSpacing: 40,
-                          mainAxisSpacing: 20,
-                        ),
-                        itemBuilder: (context, index) {
-                          final item = homeButtons[index];
-                          return ScreenHomeButtons(
-                            title: item.title,
-                            image: item.image,
-                            onTap: item.onTap,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  // Padding(
-                  //   padding: const EdgeInsets.symmetric(horizontal: 25),
-                  //   child: Text(
-                  //       'Reporte de incidencias de fichas (Actualmente abiertas)',
-                  //       style: style.titleLarge),
+                  Expanded(flex: 2, child: ScreenPageTareaERP()),
+
+                  const Divider(color: AppColors.secondary, thickness: 0.1),
+                  //   flex: 1,
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.all(20),
+                  //     child: GridView.builder(
+                  //       physics: const BouncingScrollPhysics(),
+                  //       itemCount: homeButtons.length,
+                  //       shrinkWrap: true,
+                  //       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  //         maxCrossAxisExtent: 225,
+                  //         childAspectRatio: size.width <= 600.0 ? 0.9 : 1.1,
+                  //         crossAxisSpacing: 40,
+                  //         mainAxisSpacing: 20,
+                  //       ),
+                  //       itemBuilder: (context, index) {
+                  //         final item = homeButtons[index];
+                  //         return ScreenHomeButtons(
+                  //           title: item.title,
+                  //           image: item.image,
+                  //           onTap: item.onTap,
+                  //         );
+                  //       },
+                  //     ),
+                  //   ),
                   // ),
-                  // Expanded(flex: 2, child: ResumenReportStatus())
+                  Expanded(flex: 2, child: ScreenProyecto()),
                 ],
               ),
             ),

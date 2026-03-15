@@ -1,3 +1,4 @@
+import 'package:ducoudray/proyectos/provider/provider_proyecto.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -20,6 +21,10 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => ClienteProvider()),
         ChangeNotifierProvider(create: (_) => TareaProvider()),
+
+        ChangeNotifierProvider(
+          create: (_) => ProviderProyecto()..getproyectos(),
+        ),
       ],
       child: MyApp(),
     ),
