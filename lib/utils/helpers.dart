@@ -609,6 +609,41 @@ Future showConfirmationDialog(
   );
 }
 
+Widget buildDropdown(
+  String label,
+  String value,
+  List<String> items,
+  Function(String) onChanged,
+) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 6),
+
+    child: Container(
+      width: 250,
+      margin: const EdgeInsets.symmetric(vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(6),
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 2, offset: Offset(0, 1)),
+        ],
+      ),
+      child: DropdownButtonFormField(
+        initialValue: value,
+        items: items
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .toList(),
+        onChanged: (v) => onChanged(v as String),
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          labelText: label,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+        ),
+      ),
+    ),
+  );
+}
+
 Future<bool?> showConfirmationDialogOnyAsk(
   BuildContext context,
   String message,

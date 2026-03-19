@@ -50,6 +50,7 @@ class _AddPropuestaToProyectoState extends State<AddPropuestaToProyecto> {
     _pathFileController.clear();
   }
 
+  String estadoPicked = 'PENDIENTE';
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -60,7 +61,16 @@ class _AddPropuestaToProyectoState extends State<AddPropuestaToProyecto> {
           label: 'Descripción',
           controller: _descripcionController,
         ),
-        textFieldWidgetUI(label: 'Estado', controller: _estadoController),
+
+        buildDropdown(
+          'Estado',
+          estadoPicked,
+          ['PENDIENTE', 'FINALIZADO', 'CANCELADO'],
+          (v) {
+            estadoPicked = v;
+            _estadoController.text = estadoPicked;
+          },
+        ),
         textFieldWidgetUI(
           label: 'Ruta archivo (opcional)',
           controller: _pathFileController,

@@ -22,6 +22,7 @@ class Proyecto {
   final String fechaFin;
   final String costoProyecto;
   final String status;
+
   final Cliente cliente;
   final List<Gasto> gastos;
   final List<Equipo> equipo;

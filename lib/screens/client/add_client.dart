@@ -4,13 +4,13 @@ import 'package:provider/provider.dart';
 import '../../model/cliente.dart';
 import '../../provider/cliente_provider.dart';
 
-
 void mostrarDialogAgregarCliente(BuildContext context) {
   final nombreController = TextEditingController();
   final direccionController = TextEditingController();
   final telefonoController = TextEditingController();
-
+  final emailCtrl = TextEditingController();
   final formKey = GlobalKey<FormState>();
+  String tipoCliente = 'individual';
   showDialog(
     context: context,
     builder: (context) {
@@ -19,7 +19,9 @@ void mostrarDialogAgregarCliente(BuildContext context) {
         title: Text("Agregar Cliente", style: style.bodyMedium),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(50), topRight: Radius.circular(50)),
+            bottomLeft: Radius.circular(50),
+            topRight: Radius.circular(50),
+          ),
         ),
         content: SingleChildScrollView(
           child: Form(
@@ -29,9 +31,7 @@ void mostrarDialogAgregarCliente(BuildContext context) {
               children: [
                 TextFormField(
                   controller: nombreController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre *',
-                  ),
+                  decoration: const InputDecoration(labelText: 'Nombre *'),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'El nombre es obligatorio';
@@ -39,16 +39,17 @@ void mostrarDialogAgregarCliente(BuildContext context) {
                     return null;
                   },
                 ),
-                TextField(
-                  controller: direccionController,
-                  decoration:
-                      const InputDecoration(labelText: "Dirección (opcional)"),
-                ),
-                TextField(
-                  controller: telefonoController,
-                  decoration:
-                      const InputDecoration(labelText: "Teléfono (opcional)"),
-                  keyboardType: TextInputType.phone,
+
+                _buildText(telefonoController, 'Teléfono *'),
+                _buildText(direccionController, 'Dirección (Opcional)'),
+                _buildText(emailCtrl, 'Email (Opcional)'),
+                _buildDropdown(
+                  'Tipo Cliente',
+                  tipoCliente,
+                  ['corporativo', 'pyme', 'individual'],
+                  (v) {
+                    tipoCliente = v;
+                  },
                 ),
               ],
             ),
@@ -67,11 +68,15 @@ void mostrarDialogAgregarCliente(BuildContext context) {
                 final cliente = Cliente(
                   nombre: nombreController.text.trim(),
                   direccion: direccionController.text.isEmpty
-                      ? null
+                      ? "N/A"
                       : direccionController.text.trim(),
                   telefono: telefonoController.text.isEmpty
-                      ? null
+                      ? "N/A"
                       : telefonoController.text.trim(),
+                  email: emailCtrl.text.isNotEmpty
+                      ? emailCtrl.text.trim()
+                      : "N/A",
+                  tipoCliente: tipoCliente.trim(),
                 );
 
                 bool success = await enviarCliente(cliente, context);
@@ -80,9 +85,11 @@ void mostrarDialogAgregarCliente(BuildContext context) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     backgroundColor: success ? Colors.green : Colors.red,
-                    content: Text(success
-                        ? 'Cliente agregado correctamente'
-                        : 'Error al agregar cliente'),
+                    content: Text(
+                      success
+                          ? 'Cliente agregado correctamente'
+                          : 'Error al agregar cliente',
+                    ),
                   ),
                 );
               }
@@ -94,7 +101,48 @@ void mostrarDialogAgregarCliente(BuildContext context) {
   );
 }
 
+Widget _buildText(
+  TextEditingController ctrl,
+  String label, {
+  bool required = false,
+  TextInputType? type,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: TextFormField(
+      controller: ctrl,
+      keyboardType: type,
+      decoration: InputDecoration(labelText: label),
+      validator: (v) {
+        if (required && (v == null || v.isEmpty)) return 'Requerido';
+        return null;
+      },
+    ),
+  );
+}
+
+Widget _buildDropdown(
+  String label,
+  String value,
+  List<String> items,
+  Function(String) onChanged,
+) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 6),
+    child: DropdownButtonFormField(
+      value: value,
+      items: items
+          .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+          .toList(),
+      onChanged: (v) => onChanged(v as String),
+      decoration: InputDecoration(labelText: label),
+    ),
+  );
+}
+
 Future<bool> enviarCliente(Cliente client, context) async {
-  return Provider.of<ClienteProvider>(context, listen: false)
-      .addCliente(client);
+  return Provider.of<ClienteProvider>(
+    context,
+    listen: false,
+  ).addCliente(client);
 }

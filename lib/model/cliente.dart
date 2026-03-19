@@ -17,7 +17,7 @@ class Cliente {
   final String? direccion;
   final String? telefono;
   final String? email;
-  final dynamic tipoCliente;
+  final String? tipoCliente;
 
   Cliente({
     this.clienteId,
@@ -34,7 +34,7 @@ class Cliente {
     String? direccion,
     String? telefono,
     String? email,
-    dynamic tipoCliente,
+    String? tipoCliente,
   }) => Cliente(
     clienteId: clienteId ?? this.clienteId,
     nombre: nombre ?? this.nombre,
@@ -64,5 +64,9 @@ class Cliente {
 
   static List<String> getUniqueCliente(List<Cliente> list) {
     return list.map((element) => element.nombre!).toSet().toList();
+  }
+
+  static List<String> getUniqueTipoCliente(List<Cliente> list) {
+    return list.map((element) => element.tipoCliente!).toSet().toList();
   }
 }

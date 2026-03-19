@@ -11,7 +11,9 @@ class ClienteService {
   /// Obtener todos los clientes
   static Future<List<Cliente>> fetchClientes() async {
     final res = await _api.httpEnviaMap(
-        '$baseUrl/read_cliente.php', jsonEncode({"view": "view"}));
+      '$baseUrl/read_cliente.php',
+      jsonEncode({"view": "view"}),
+    );
     print(res);
     final value = json.decode(res);
     if (value['success']) {
@@ -54,6 +56,18 @@ class ClienteService {
     final res = await _api.httpEnviaMap(
       '$baseUrl/update_cliente.php',
       json.encode(cliente.toJson()),
+    );
+    final value = json.decode(res);
+    if (value['success']) {
+      return true;
+    }
+    return false;
+  }
+
+  static Future<bool> eliminarCliente(id) async {
+    final res = await _api.httpEnviaMap(
+      '$baseUrl/delete_cliente.php',
+      json.encode({"cliente_id": id}),
     );
     final value = json.decode(res);
     if (value['success']) {

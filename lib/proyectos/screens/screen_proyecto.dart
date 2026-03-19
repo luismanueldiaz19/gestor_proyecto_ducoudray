@@ -69,6 +69,7 @@ class _ScreenProyectoState extends State<ScreenProyecto> {
                         DataColumn(label: Text("PROYECTO")),
                         DataColumn(label: Text("FECHAS")),
                         DataColumn(label: Text("EQUIPO")),
+                        DataColumn(label: Text("COSTOS")),
                         DataColumn(label: Text("GASTOS")),
                         DataColumn(label: Text("COTIZADO")),
                         DataColumn(label: Text("BALANCE")),
@@ -162,6 +163,11 @@ class _ScreenProyectoState extends State<ScreenProyecto> {
 
                             /// EQUIPO
                             DataCell(Text(proyecto.equipo.length.toString())),
+                            DataCell(
+                              Text(
+                                "\$ ${getNumFormatedDouble(proyecto.costoProyecto)}",
+                              ),
+                            ),
 
                             /// GASTOS
                             DataCell(

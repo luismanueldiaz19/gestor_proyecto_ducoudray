@@ -21,4 +21,45 @@ class RepositorieProyecto {
     }
     return <Proyecto>[];
   }
+
+  static Future<Map<String, dynamic>> agregarProyectoCompleto(
+    Map<String, dynamic> jsonValue,
+  ) async {
+    return await _postRequest(
+      endpoint: 'agregar_proyecto_completo.php',
+      body: jsonValue,
+    );
+  }
+
+  static Future<Map<String, dynamic>> _postRequest({
+    required String endpoint,
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final res = await _api.httpEnviaMap(
+        '$baseUrl/$endpoint',
+        jsonEncode(body),
+      );
+
+      final valueJson = json.decode(res) as Map<String, dynamic>;
+
+      final success = valueJson['success'] == true;
+
+      if (!success) {
+        return {
+          'success': false,
+          'message': valueJson['message'] ?? 'Error en la petición',
+        };
+      }
+
+      return valueJson;
+    } on FormatException catch (e) {
+      return {
+        'success': false,
+        'message': 'Respuesta inválida del servidor: $e',
+      };
+    } catch (e) {
+      return {'success': false, 'message': 'Error inesperado: $e'};
+    }
+  }
 }

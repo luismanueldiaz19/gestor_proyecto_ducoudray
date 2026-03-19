@@ -74,8 +74,17 @@ class _AddGastoToProyectoState extends State<AddGastoToProyecto> {
         textFieldWidgetUI(
           label: 'Fecha',
           controller: _fechaController,
-          keyboardType: TextInputType.datetime,
+          onTap: () async {
+            await pickSingleDate(context, (fecha) {
+              setState(() {
+                _fechaController.text = fecha.toString().substring(0, 10);
+              });
+            });
+          },
+          readOnly: true,
+          suffixIcon: Icons.calendar_month_outlined,
         ),
+
         SizedBox(height: 5),
         CustomLoginButton(
           onPressed: _agregarGasto,

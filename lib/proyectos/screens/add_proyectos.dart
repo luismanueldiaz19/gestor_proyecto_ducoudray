@@ -1,6 +1,13 @@
+import 'package:ducoudray/model/cliente.dart';
+import 'package:ducoudray/proyectos/provider/provider_proyecto.dart';
 import 'package:ducoudray/proyectos/widgets/add_propuesta_to_proyecto.dart';
+import 'package:ducoudray/utils/helpers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import '../../repositories/cliente_service.dart';
+import '../../widgets/window_list_selector.dart';
 import '../widgets/add_cotizacion_to_proyecto.dart';
 import '../widgets/add_equipo_to_proyecto.dart';
 import '../widgets/add_gasto_to_projecto.dart';
@@ -15,6 +22,19 @@ class AddProyectos extends StatefulWidget {
 
 class _AddProyectosState extends State<AddProyectos> {
   int _currentStep = 0;
+  final TextEditingController contClient = TextEditingController();
+  List<Cliente> listClientsFilter = [];
+
+  Future getClient() async {
+    List<Cliente> list = await ClienteService.fetchClientes();
+    listClientsFilter = list;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getClient();
+  }
 
   // Controladores básicos
   final _nombreProyectoController = TextEditingController();
@@ -23,6 +43,7 @@ class _AddProyectosState extends State<AddProyectos> {
   final _cronogramaController = TextEditingController();
   final _fechaInicioController = TextEditingController();
   final _fechaFinController = TextEditingController();
+  final _costoController = TextEditingController();
 
   // Datos dinámicos
   List<Map<String, dynamic>> equipo = [];
@@ -34,24 +55,11 @@ class _AddProyectosState extends State<AddProyectos> {
   List<Map<String, dynamic>> propuestas = [];
   List<Map<String, dynamic>> oportunidades = [];
 
-  Future<void> enviarProyecto() async {
-    // Validación final antes de enviar
-    if (_nombreProyectoController.text.isEmpty ||
-        equipo.isEmpty ||
-        cotizaciones.isEmpty ||
-        gastos.isEmpty ||
-        facturacion.isEmpty ||
-        servicios.isEmpty ||
-        propuestas.isEmpty ||
-        oportunidades.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("El formulario está incompleto")));
-      return;
-    }
+  Cliente? pickedCliente;
 
+  Future<void> enviarProyecto(context) async {
     final Map<String, dynamic> data = {
-      "cliente_id": 1,
+      "cliente_id": pickedCliente!.clienteId,
       "proyecto": {
         "nombre": _nombreProyectoController.text,
         "alcance": _alcanceController.text,
@@ -59,6 +67,7 @@ class _AddProyectosState extends State<AddProyectos> {
         "cronograma": _cronogramaController.text,
         "fecha_inicio": _fechaInicioController.text,
         "fecha_fin": _fechaFinController.text,
+        "costo_proyecto": _costoController.text.trim(),
       },
       "equipo": equipo,
       "cotizaciones": cotizaciones,
@@ -70,26 +79,28 @@ class _AddProyectosState extends State<AddProyectos> {
       "oportunidades": oportunidades,
     };
 
-    print(data);
+    Map<String, dynamic> res = await Provider.of<ProviderProyecto>(
+      context,
+      listen: false,
+    ).addNewProyecto(data);
 
-    // final response = await http.post(
-    //   Uri.parse(
-    //     "http://localhost/ducoudray/proyectos/agregar_proyecto_completo.php",
-    //   ),
-    //   headers: {"Content-Type": "application/json"},
-    //   body: jsonEncode(data),
-    // );
-
-    // if (response.statusCode == 200) {
-    //   final result = jsonDecode(response.body);
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text("Respuesta: ${result['message']}")),
-    //   );
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(content: Text("Error al enviar: ${response.statusCode}")),
-    //   );
-    // }
+    // final response
+    if (res['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Respuesta: ${res['message']}"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error al enviar: ${res['message']}"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -103,7 +114,12 @@ class _AddProyectosState extends State<AddProyectos> {
             case 0:
               if (_nombreProyectoController.text.isEmpty ||
                   _alcanceController.text.isEmpty ||
-                  _entregablesController.text.isEmpty) {
+                  _entregablesController.text.isEmpty ||
+                  _cronogramaController.text.isEmpty ||
+                  _fechaInicioController.text.isEmpty ||
+                  _fechaFinController.text.isEmpty ||
+                  pickedCliente == null ||
+                  _costoController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text("Completa todos los campos del proyecto"),
@@ -113,69 +129,69 @@ class _AddProyectosState extends State<AddProyectos> {
                 return;
               }
               break;
-            case 1:
-              if (equipo.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Agrega al menos un miembro al equipo"),
-                    duration: Durations.short3,
-                  ),
-                );
-                return;
-              }
-              break;
-            case 2:
-              if (cotizaciones.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Agrega al menos una cotización"),
-                    duration: Durations.short3,
-                  ),
-                );
-                return;
-              }
-              break;
-            case 3:
-              if (gastos.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Agrega al menos un gasto"),
-                    duration: Durations.short3,
-                  ),
-                );
-                return;
-              }
-              break;
+            // case 1:
+            //   if (equipo.isEmpty) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(
+            //         content: Text("Agrega al menos un miembro al equipo"),
+            //         duration: Durations.short3,
+            //       ),
+            //     );
+            //     return;
+            //   }
+            //   break;
+            // case 2:
+            //   if (cotizaciones.isEmpty) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(
+            //         content: Text("Agrega al menos una cotización"),
+            //         duration: Durations.short3,
+            //       ),
+            //     );
+            //     return;
+            //   }
+            //   break;
+            // case 3:
+            //   if (gastos.isEmpty) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(
+            //         content: Text("Agrega al menos un gasto"),
+            //         duration: Durations.short3,
+            //       ),
+            //     );
+            //     return;
+            //   }
+            //   break;
 
-            case 4:
-              if (propuestas.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Agrega al menos una propuesta"),
-                    duration: Durations.short3,
-                  ),
-                );
-                return;
-              }
-              break;
+            // case 4:
+            //   if (propuestas.isEmpty) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(
+            //         content: Text("Agrega al menos una propuesta"),
+            //         duration: Durations.short3,
+            //       ),
+            //     );
+            //     return;
+            //   }
+            //   break;
 
-            case 5:
-              if (oportunidades.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text("Agrega al menos una oportunidad"),
-                    duration: Durations.short3,
-                  ),
-                );
-                return;
-              }
-              break;
+            // case 5:
+            //   if (oportunidades.isEmpty) {
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(
+            //         content: Text("Agrega al menos una oportunidad"),
+            //         duration: Durations.short3,
+            //       ),
+            //     );
+            //     return;
+            //   }
+            //   break;
           }
 
           if (_currentStep < 6) {
             setState(() => _currentStep += 1);
           } else {
-            enviarProyecto();
+            enviarProyecto(context);
           }
         },
         onStepCancel: () {
@@ -183,34 +199,107 @@ class _AddProyectosState extends State<AddProyectos> {
             setState(() => _currentStep -= 1);
           }
         },
+
         steps: [
           Step(
             title: Text("Proyecto"),
             content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextField(
+                const SizedBox(width: double.infinity),
+                textFieldWidgetUI(
+                  width: 250,
+                  label: "Cliente",
+                  controller: contClient,
+                  onTap: () async {
+                    Cliente? valueClient = await showDialog(
+                      context: context,
+                      builder: (context) {
+                        return WindowsSelectorDialog<Cliente>(
+                          items: listClientsFilter,
+                          labelBuilder: (value) => limitarTexto(
+                            '${value.nombre} - tel : ${value.telefono}',
+                            50,
+                          ),
+                          title: 'Buscar Clientes',
+                        );
+                      },
+                    );
+                    if (valueClient != null) {
+                      setState(() => pickedCliente = valueClient);
+                      contClient.text = pickedCliente!.nombre!.toUpperCase();
+                    }
+                  },
+                  readOnly: true,
+                  // suffixIcon: pickedCliente != null ? Icons.close : null,
+                  // onSuffixTap: pickedCliente != null ? cleanFormulario : null,
+                ),
+                textFieldWidgetUI(
                   controller: _nombreProyectoController,
-                  decoration: InputDecoration(labelText: "Nombre"),
+                  label: 'Nombre del proyecto',
                 ),
-                TextField(
+                textFieldWidgetUI(
                   controller: _alcanceController,
-                  decoration: InputDecoration(labelText: "Alcance"),
+                  label: "Alcance",
                 ),
-                TextField(
+                textFieldWidgetUI(
                   controller: _entregablesController,
-                  decoration: InputDecoration(labelText: "Entregables"),
+                  label: "Entregables",
                 ),
-                TextField(
+                textFieldWidgetUI(
                   controller: _cronogramaController,
-                  decoration: InputDecoration(labelText: "Cronograma"),
+                  label: "Cronograma",
                 ),
-                TextField(
-                  controller: _fechaInicioController,
-                  decoration: InputDecoration(labelText: "Fecha inicio"),
+                textFieldWidgetUI(
+                  controller: _costoController,
+                  label: "Costo",
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  suffixIcon: Icons.monetization_on_outlined,
                 ),
-                TextField(
-                  controller: _fechaFinController,
-                  decoration: InputDecoration(labelText: "Fecha fin"),
+                SizedBox(
+                  width: 250,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    spacing: 10,
+                    children: [
+                      Text('Fecha Inicio : ${_fechaInicioController.text}'),
+                      IconButton(
+                        onPressed: () async {
+                          await pickSingleDate(context, (fecha) {
+                            setState(() {
+                              _fechaInicioController.text = fecha
+                                  .toString()
+                                  .substring(0, 10);
+                            });
+                          });
+                        },
+                        icon: Icon(Icons.calendar_month_outlined),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 250,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    spacing: 10,
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          await pickSingleDate(context, (fecha) {
+                            setState(() {
+                              _fechaFinController.text = fecha
+                                  .toString()
+                                  .substring(0, 10);
+                            });
+                          });
+                        },
+                        icon: Icon(Icons.calendar_month),
+                      ),
+                      Text('Fecha Fin : ${_fechaFinController.text}'),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -241,21 +330,6 @@ class _AddProyectosState extends State<AddProyectos> {
                 });
               },
             ),
-
-            // ElevatedButton(
-            //   onPressed: () {
-            //     cotizaciones.add({
-            //       "descripcion": "Cotización inicial",
-            //       "monto": 150000,
-            //       "estado": "Pendiente",
-            //       "fecha": "2026-03-10",
-            //     });
-            //     ScaffoldMessenger.of(context).showSnackBar(
-            //       SnackBar(content: Text("Cotización demo agregada")),
-            //     );
-            //   },
-            //   child: Text("Agregar cotización demo"),
-            // ),
           ),
           Step(
             title: Text("Gastos"),
@@ -290,9 +364,10 @@ class _AddProyectosState extends State<AddProyectos> {
 
           Step(
             title: Text("Finalizar"),
-            content: ElevatedButton(
-              onPressed: enviarProyecto,
-              child: Text("Enviar a API"),
+            content: CustomLoginButton(
+              onPressed: () => enviarProyecto(context),
+
+              text: "Registrar",
             ),
           ),
         ],

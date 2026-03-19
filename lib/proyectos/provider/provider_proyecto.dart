@@ -22,4 +22,20 @@ class ProviderProyecto extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  Future<Map<String, dynamic>> addNewProyecto(
+    Map<String, dynamic> jsonValue,
+  ) async {
+    try {
+      final res = await RepositorieProyecto.agregarProyectoCompleto(jsonValue);
+
+      if (res['success'] == true) {
+        await getproyectos(); // refresca después de guardar
+      }
+
+      return res;
+    } catch (e) {
+      return {'success': false, 'message': 'Error al agregar proyecto: $e'};
+    }
+  }
 }

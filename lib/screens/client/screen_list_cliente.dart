@@ -1,3 +1,4 @@
+import 'package:ducoudray/widgets/custom_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,7 @@ class ScreenListCliente extends StatefulWidget {
 
 class _ScreenListClienteState extends State<ScreenListCliente> {
   final _conSurcu = TextEditingController();
+  final _contipo = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -69,6 +71,14 @@ class _ScreenListClienteState extends State<ScreenListCliente> {
     );
   }
 
+  Future eliminarCliente(_context, id) async {
+    bool? ask = await showConfirmationDialogOnyAsk(context, eliminarMjs);
+
+    if (ask != null && ask == true) {
+      Provider.of<ClienteProvider>(_context, listen: false).eliminarCliente(id);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final clienteProvider = context.read<ClienteProvider>();
@@ -108,8 +118,8 @@ class _ScreenListClienteState extends State<ScreenListCliente> {
               children: [
                 textFieldWidgetUI(
                   controller: _conSurcu,
-                  hintText: 'Ingrese Sucursal',
-                  label: 'Buscar Sucursal',
+                  hintText: 'Ingrese cliente',
+                  label: 'Buscar cliente',
                   readOnly: true,
                   onTap: () {
                     showDialog(
@@ -122,6 +132,28 @@ class _ScreenListClienteState extends State<ScreenListCliente> {
                           onSelected: (value) {
                             _conSurcu.text = value;
                             clienteProvider.setFilterCliente(value);
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+                textFieldWidgetUI(
+                  controller: _contipo,
+                  hintText: 'Ingrese Tipo cliente',
+                  label: 'Buscar Tipo cliente',
+                  readOnly: true,
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return BuscadorDialog(
+                          items: Cliente.getUniqueTipoCliente(
+                            clienteProvider.clientesOriginal,
+                          ),
+                          onSelected: (value) {
+                            _contipo.text = value;
+                            clienteProvider.setFilterTipoCliente(value);
                           },
                         );
                       },
@@ -157,8 +189,12 @@ class _ScreenListClienteState extends State<ScreenListCliente> {
                       DataColumn(label: Text('NOMBRE CLIENTE')),
                       DataColumn(label: Text('TELEFONO')),
                       DataColumn(label: Text('DIRECCION')),
+                      DataColumn(label: Text('EMAIL')),
+                      DataColumn(label: Text('TIPO CLIENTE')),
                       if (currentUsuario!.tienePermiso('crear_clientes'))
                         DataColumn(label: Text('EDITAR')),
+                      if (currentUsuario!.tienePermiso('admin'))
+                        DataColumn(label: Text('ELIMINAR')),
                     ],
                     rows: clienteProvider.clientes.asMap().entries.map((entry) {
                       final index = entry.key;
@@ -187,10 +223,18 @@ class _ScreenListClienteState extends State<ScreenListCliente> {
                               title: 'Dirección',
                             ),
                           ),
+                          DataCell(Text(v.email ?? 'N/A')),
+                          DataCell(Text(v.tipoCliente ?? 'N/A')),
                           if (currentUsuario!.tienePermiso('crear_clientes'))
                             DataCell(
                               Text('Editar'),
                               onTap: () => actualizatItem(v),
+                            ),
+                          if (currentUsuario!.tienePermiso('admin'))
+                            DataCell(
+                              Text('Eliminar'),
+                              onTap: () =>
+                                  eliminarCliente(context, v.clienteId!),
                             ),
                         ],
                       );
@@ -199,6 +243,9 @@ class _ScreenListClienteState extends State<ScreenListCliente> {
                 ),
               ),
             ),
+          if (watchList.clientes.isEmpty)
+            Expanded(child: CustomLoading(scale: 10, text: 'No hay cliente')),
+
           identy(context),
         ],
       ),

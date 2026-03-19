@@ -66,9 +66,16 @@ class ClienteProvider extends ChangeNotifier {
   }
 
   String? nombreClient;
+  String? tipoClient;
 
   void setFilterCliente(value) {
     nombreClient = value;
+    filterPedidos();
+    notifyListeners();
+  }
+
+  void setFilterTipoCliente(value) {
+    tipoClient = value;
     filterPedidos();
     notifyListeners();
   }
@@ -81,6 +88,11 @@ class ClienteProvider extends ChangeNotifier {
             matches &&
             (pedido.nombre?.toLowerCase() == nombreClient!.toLowerCase());
       }
+      if (tipoClient != null && tipoClient!.isNotEmpty) {
+        matches =
+            matches &&
+            (pedido.tipoCliente?.toLowerCase() == tipoClient!.toLowerCase());
+      }
       return matches;
     }).toList();
   }
@@ -89,5 +101,14 @@ class ClienteProvider extends ChangeNotifier {
     _clientesFiltrados = _clientes;
     nombreClient = null;
     notifyListeners();
+  }
+
+  Future<bool> eliminarCliente(dynamic id) async {
+    final success = await ClienteService.eliminarCliente(id);
+    if (success) {
+      await fetchClientes(); // Recarga toda la lista desde el servidor
+      // notifyListeners();
+    }
+    return success;
   }
 }
