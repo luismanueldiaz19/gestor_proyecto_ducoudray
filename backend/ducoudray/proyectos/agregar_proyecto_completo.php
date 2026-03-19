@@ -42,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Insertar proyecto
-        $sql = 'INSERT INTO proyectos (cliente_id, nombre, alcance, entregables, cronograma, fecha_inicio, fecha_fin)
-                VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id_proyecto';
+        $sql = 'INSERT INTO proyectos (cliente_id, nombre, alcance, entregables, cronograma, fecha_inicio, fecha_fin,costo_proyecto)
+                VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id_proyecto';
         $params = [
             $cliente_id,
             $proyecto['nombre'],
@@ -51,7 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $proyecto['entregables']  ?? null,
             $proyecto['cronograma']   ?? null,
             $proyecto['fecha_inicio'] ?? null,
-            $proyecto['fecha_fin']    ?? null
+            $proyecto['fecha_fin']    ?? null,
+            $proyecto['costo_proyecto'] ?? null
         ];
         $result      = pg_query_params($conn, $sql, $params);
         $id_proyecto = pg_fetch_result($result, 0, 'id_proyecto');
